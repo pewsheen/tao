@@ -122,5 +122,5 @@ gdkx11-sys = "0.15"
 gdk-pixbuf = { version = "0.15", features = [ "v2_36_8" ] }
 libappindicator = { version = "0.7", optional = true }
 x11-dl = "2.18"
-uuid = { version = "0.8", features = [ "v4" ] }
+uuid = { version = "1.1", features = [ "v4" ] }
 png = "0.17"
