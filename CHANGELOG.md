@@ -1,5 +1,10 @@
 # Changelog
 
+## \[0.13.3]
+
+- Implement `SystemTray::set_tooltip` and `SystemTrayBuilder::with_tooltip` on Windows.
+  - [06949a79](https://github.com/tauri-apps/tao/commit/06949a7948100a51e98008c9e6f4ac73e069433a) feat(windows): implement `with_tooltip`&`set_tooltip`, closes [#205](https://github.com/tauri-apps/tao/pull/205) ([#524](https://github.com/tauri-apps/tao/pull/524)) on 2022-08-10
+
 ## \[0.13.2]
 
 - Remove the NSStatusItem from the menu bar when the `SystemTray` instance is dropped.
