@@ -146,17 +146,30 @@ fn create_window(
 ) -> Option<IdRef> {
   unsafe {
     let pool = NSAutoreleasePool::new(nil);
-    let screen = match attrs.fullscreen {
-      Some(Fullscreen::Borderless(Some(RootMonitorHandle { inner: ref monitor })))
-      | Some(Fullscreen::Exclusive(RootVideoMode {
-        video_mode: VideoMode { ref monitor, .. },
-      })) => {
-        let monitor_screen = monitor.ns_screen();
-        Some(monitor_screen.unwrap_or_else(|| appkit::NSScreen::mainScreen(nil)))
+
+    let screen: Option<id> = match &attrs.init_monitor {
+      Some(monitor) => {
+        dbg!(monitor.name());
+        monitor.inner.ns_screen()
       }
-      Some(Fullscreen::Borderless(None)) => Some(appkit::NSScreen::mainScreen(nil)),
-      None => None,
+      None => match attrs.fullscreen {
+        Some(Fullscreen::Borderless(Some(RootMonitorHandle { inner: ref monitor })))
+        | Some(Fullscreen::Exclusive(RootVideoMode {
+          video_mode: VideoMode { ref monitor, .. },
+        })) => {
+          let monitor_screen = monitor.ns_screen();
+          Some(monitor_screen.unwrap_or_else(|| appkit::NSScreen::mainScreen(nil)))
+        }
+        Some(Fullscreen::Borderless(None)) => Some(appkit::NSScreen::mainScreen(nil)),
+        None => None,
+      },
     };
+
+    dbg!(
+      cocoa::appkit::NSScreen::frame(screen.unwrap()).origin.x,
+      cocoa::appkit::NSScreen::frame(screen.unwrap()).origin.y
+    );
+
     let frame = match screen {
       Some(screen) => NSScreen::frame(screen),
       None => {
@@ -214,12 +227,15 @@ fn create_window(
     }
 
     let ns_window: id = msg_send![WINDOW_CLASS.0, alloc];
-    let ns_window = IdRef::new(ns_window.initWithContentRect_styleMask_backing_defer_(
-      frame,
-      masks,
-      appkit::NSBackingStoreBuffered,
-      NO,
-    ));
+    let ns_window = IdRef::new(
+      ns_window.initWithContentRect_styleMask_backing_defer_screen_(
+        frame,
+        masks,
+        appkit::NSBackingStoreBuffered,
+        NO,
+        screen.unwrap_or(nil),
+      ),
+    );
     let res = ns_window.non_nil().map(|ns_window| {
       let title = util::ns_string_id_ref(&attrs.title);
       ns_window.setReleasedWhenClosed_(NO);
@@ -293,7 +309,7 @@ fn create_window(
       if !pl_attrs.has_shadow {
         ns_window.setHasShadow_(NO);
       }
-      if attrs.position.is_none() {
+      if attrs.init_monitor.is_none() && attrs.position.is_none() {
         ns_window.center();
       }
       if let Some(window_menu) = attrs.window_menu.clone() {

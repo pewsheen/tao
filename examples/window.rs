@@ -12,17 +12,23 @@ use tao::{
 fn main() {
   let event_loop = EventLoop::new();
 
+  event_loop.available_monitors().for_each(|m| {
+    dbg!(&m.name().unwrap());
+  });
+  let monitor = event_loop.available_monitors().nth(1).unwrap();
+
   let mut window = Some(
     WindowBuilder::new()
       .with_title("A fantastic window!")
       .with_inner_size(tao::dpi::LogicalSize::new(128.0, 128.0))
+      .with_monitor(monitor)
       .build(&event_loop)
       .unwrap(),
   );
 
   event_loop.run(move |event, _, control_flow| {
     *control_flow = ControlFlow::Wait;
-    println!("{:?}", event);
+    // println!("{:?}", event);
 
     match event {
       Event::WindowEvent {

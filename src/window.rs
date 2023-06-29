@@ -250,6 +250,8 @@ pub struct WindowAttributes {
   ///
   /// - **iOS / Android / Windows:** Unsupported.
   pub visible_on_all_workspaces: bool,
+
+  pub init_monitor: Option<MonitorHandle>,
 }
 
 impl Default for WindowAttributes {
@@ -278,6 +280,7 @@ impl Default for WindowAttributes {
       focused: true,
       content_protection: false,
       visible_on_all_workspaces: false,
+      init_monitor: None,
     }
   }
 }
@@ -521,6 +524,12 @@ impl WindowBuilder {
   #[inline]
   pub fn with_visible_on_all_workspaces(mut self, visible: bool) -> WindowBuilder {
     self.window.visible_on_all_workspaces = visible;
+    self
+  }
+
+  #[inline]
+  pub fn with_monitor(mut self, monitor: MonitorHandle) -> WindowBuilder {
+    self.window.init_monitor = Some(monitor);
     self
   }
 
