@@ -17,13 +17,13 @@ mod keycode;
 mod menu;
 mod monitor;
 mod observer;
+mod power_monitor;
 #[cfg(feature = "tray")]
 mod system_tray;
 mod util;
 mod view;
 mod window;
 mod window_delegate;
-mod power_monitor;
 
 use std::{fmt, ops::Deref, sync::Arc};
 

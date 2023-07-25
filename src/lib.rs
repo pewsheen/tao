@@ -213,8 +213,8 @@ mod icon;
 pub mod keyboard;
 pub mod menu;
 pub mod monitor;
-pub mod power_monitor;
 mod platform_impl;
+pub mod power_monitor;
 
 #[cfg(any(target_os = "windows", target_os = "macos",))]
 #[cfg(feature = "tray")]

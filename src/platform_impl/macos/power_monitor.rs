@@ -52,10 +52,12 @@ extern "C" fn init_monitor(this: &Object, _sel: Sel) -> id {
   println!("init()");
   unsafe {
     let this: id = msg_send![this, init];
-    dbg!(this);
     if this != nil {
       let notification_center: &Object =
         msg_send![class!(NSDistributedNotificationCenter), defaultCenter];
+
+      let workspace: id = msg_send![class!(NSWorkspace), sharedWorkspace];
+      let ws_notification_center: &Object = msg_send![workspace, notificationCenter];
 
       let () = msg_send![
           notification_center,
@@ -72,22 +74,48 @@ extern "C" fn init_monitor(this: &Object, _sel: Sel) -> id {
           name: NSString::alloc(nil).init_str("com.apple.screenIsUnlocked")
           object: nil
       ];
+
+      let () = msg_send![
+          ws_notification_center,
+          addObserver: this
+          selector: sel!(onSuspend:)
+          name: NSString::alloc(nil).init_str("NSWorkspaceWillSleepNotification")
+          object: nil
+      ];
+
+      let () = msg_send![
+          ws_notification_center,
+          addObserver: this
+          selector: sel!(onResume:)
+          name: NSString::alloc(nil).init_str("NSWorkspaceDidWakeNotification")
+          object: nil
+      ];
     }
     this
   }
 }
 
 extern "C" fn on_screen_locked(_this: &Object, _sel: Sel, _state: *mut c_void) {
-  println!("on_screen_locked()");
   AppState::queue_event(EventWrapper::StaticEvent(PowerEventWrapper {
     event: PowerEvent::ScreenLocked,
   }));
 }
 
 extern "C" fn on_screen_unlocked(_this: &Object, _sel: Sel, _state: *mut c_void) {
-  println!("on_screen_unlocked()");
   AppState::queue_event(EventWrapper::StaticEvent(PowerEventWrapper {
     event: PowerEvent::ScreenUnlocked,
+  }));
+}
+
+extern "C" fn on_suspend(_this: &Object, _sel: Sel, _state: *mut c_void) {
+  AppState::queue_event(EventWrapper::StaticEvent(PowerEventWrapper {
+    event: PowerEvent::Suspend,
+  }));
+}
+
+extern "C" fn on_resume(_this: &Object, _sel: Sel, _state: *mut c_void) {
+  AppState::queue_event(EventWrapper::StaticEvent(PowerEventWrapper {
+    event: PowerEvent::Resume,
   }));
 }
 
@@ -122,6 +150,14 @@ fn get_or_init_power_monitor_class() -> *const Class {
     decl.add_method(
       sel!(onScreenUnlocked:),
       on_screen_unlocked as extern "C" fn(&Object, Sel, *mut c_void),
+    );
+    decl.add_method(
+      sel!(onSuspend:),
+      on_suspend as extern "C" fn(&Object, Sel, *mut c_void),
+    );
+    decl.add_method(
+      sel!(onResume:),
+      on_resume as extern "C" fn(&Object, Sel, *mut c_void),
     );
     POWER_MONITOR_CLASS = decl.register();
   });

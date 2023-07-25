@@ -1058,7 +1058,7 @@ pub enum MouseScrollDelta {
 #[non_exhaustive]
 #[derive(Clone, Debug, PartialEq)]
 pub enum PowerEvent {
-  Suspended,
+  Suspend,
   Resume,
   ScreenLocked,
   ScreenUnlocked,

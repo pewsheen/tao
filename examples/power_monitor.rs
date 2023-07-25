@@ -3,9 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use tao::{
-  event::{Event, WindowEvent, PowerEvent},
+  event::{Event, PowerEvent, WindowEvent},
   event_loop::{ControlFlow, EventLoop},
-  window::WindowBuilder, power_monitor::PowerMonitor,
+  power_monitor::PowerMonitor,
+  window::WindowBuilder,
 };
 
 #[allow(clippy::single_match)]
@@ -26,11 +27,29 @@ fn main() {
     *control_flow = ControlFlow::Wait;
 
     match event {
-      Event::PowerEvent { event: PowerEvent::ScreenLocked, .. } => {
+      Event::PowerEvent {
+        event: PowerEvent::ScreenLocked,
+        ..
+      } => {
         println!("ScreenLocked");
       }
-      Event::PowerEvent { event: PowerEvent::ScreenUnlocked, .. } => {
+      Event::PowerEvent {
+        event: PowerEvent::ScreenUnlocked,
+        ..
+      } => {
         println!("ScreenUnlocked");
+      }
+      Event::PowerEvent {
+        event: PowerEvent::Suspend,
+        ..
+      } => {
+        println!("Suspend");
+      }
+      Event::PowerEvent {
+        event: PowerEvent::Resume,
+        ..
+      } => {
+        println!("Resume");
       }
       Event::WindowEvent {
         event: WindowEvent::CloseRequested,
