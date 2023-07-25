@@ -23,11 +23,14 @@ mod util;
 mod view;
 mod window;
 mod window_delegate;
+mod power_monitor;
 
 use std::{fmt, ops::Deref, sync::Arc};
 
 #[cfg(feature = "tray")]
 pub use self::system_tray::{SystemTray, SystemTrayBuilder};
+
+pub use power_monitor::PowerMonitor;
 
 pub use self::{
   app_delegate::{get_aux_state_mut, AuxDelegateState},

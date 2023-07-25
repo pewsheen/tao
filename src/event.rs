@@ -167,6 +167,9 @@ pub enum Event<'a, T: 'static> {
 
   /// Emitted when the app is open by external resources, like opening a Url.
   Opened { event: OpenEvent },
+
+  #[non_exhaustive]
+  PowerEvent { event: PowerEvent },
 }
 
 /// What the app is opening.
@@ -220,6 +223,9 @@ impl<T: Clone> Clone for Event<'static, T> {
       Opened { event } => Opened {
         event: event.clone(),
       },
+      PowerEvent { event } => PowerEvent {
+        event: event.clone(),
+      },
     }
   }
 }
@@ -260,6 +266,7 @@ impl<'a, T> Event<'a, T> {
       }),
       GlobalShortcutEvent(accelerator_id) => Ok(GlobalShortcutEvent(accelerator_id)),
       Opened { event } => Ok(Opened { event }),
+      PowerEvent { event } => Ok(PowerEvent { event }),
     }
   }
 
@@ -302,6 +309,7 @@ impl<'a, T> Event<'a, T> {
       }),
       GlobalShortcutEvent(accelerator_id) => Some(GlobalShortcutEvent(accelerator_id)),
       Opened { event } => Some(Opened { event }),
+      PowerEvent { event } => Some(PowerEvent { event }),
     }
   }
 }
@@ -1045,4 +1053,13 @@ pub enum MouseScrollDelta {
   /// supported by the device (eg. a touchpad) and
   /// platform.
   PixelDelta(PhysicalPosition<f64>),
+}
+
+#[non_exhaustive]
+#[derive(Clone, Debug, PartialEq)]
+pub enum PowerEvent {
+  Suspended,
+  Resume,
+  ScreenLocked,
+  ScreenUnlocked,
 }
