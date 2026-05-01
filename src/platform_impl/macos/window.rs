@@ -587,6 +587,7 @@ impl UnownedWindow {
     let transparent = win_attribs.transparent;
     let visible = win_attribs.visible;
     let focused = win_attribs.focused;
+    let focusable = win_attribs.focusable;
     let decorations = win_attribs.decorations;
     let visible_on_all_workspaces = win_attribs.visible_on_all_workspaces;
     let inner_rect = win_attribs
@@ -628,10 +629,11 @@ impl UnownedWindow {
     // state, since otherwise we'll briefly see the window at normal size
     // before it transitions.
     if visible {
-      if focused {
+      if focused && focusable {
         // Tightly linked with `app_state::window_activation_hack`
+        println!("UnownedWindow::new");
         unsafe { window.ns_window.makeKeyAndOrderFront(None) };
-      } else {
+      } else if focusable {
         unsafe { window.ns_window.orderFront(None) };
       }
     }

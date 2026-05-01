@@ -16,7 +16,11 @@ use std::{
   time::Instant,
 };
 
-use objc2::{msg_send, rc::Retained, runtime::AnyObject as Object};
+use objc2::{
+  msg_send,
+  rc::Retained,
+  runtime::{AnyObject as Object, Bool},
+};
 use objc2_app_kit::{NSApp, NSApplication, NSApplicationActivationPolicy, NSWindow};
 use objc2_foundation::{MainThreadMarker, NSAutoreleasePool, NSSize};
 use once_cell::sync::Lazy;
@@ -444,9 +448,17 @@ unsafe fn window_activation_hack(ns_app: &NSApplication) {
     // And call `makeKeyAndOrderFront` if it was called on the window in `UnownedWindow::new`
     // This way we preserve the user's desired initial visiblity status
     // TODO: Also filter on the type/"level" of the window, and maybe other things?
+
+    #[allow(deprecated)]
+    let focusable = bool::from(*(ns_window.get_ivar::<Bool>("focusable")));
+
     if ns_window.isVisible() {
       trace!("Activating visible window");
-      ns_window.makeKeyAndOrderFront(None);
+      println!("focusable = {focusable}");
+      if focusable {
+        println!("window_activation_hack");
+        ns_window.makeKeyAndOrderFront(None);
+      }
     } else {
       trace!("Skipping activating invisible window");
     }
